@@ -13,10 +13,19 @@ const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 8080;
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://peppy-chimera-e13188.netlify.app"
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "https://peppy-chimera-e13188.netlify.app"
+    ];
+
+    // allow requests with no origin (Postman, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
