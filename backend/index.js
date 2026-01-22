@@ -14,8 +14,8 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
-    "http://localhost:3000",
-    "https://lucent-otter-29fb54.netlify.app"
+    "http://localhost:5173",
+    
   ],
   credentials: true
 }));

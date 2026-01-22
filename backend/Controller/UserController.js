@@ -158,18 +158,3 @@ export const GetUserProfile = async(req,res)=>{
     }
 }
 
-export const updateUser = async(req,res)=>{
-            try {
-                const userId = req.user._id
-
-                const {email,password,name,phone,otp,profile}= req.body;
-
-                const dataupdate = {email,password,name,phone,otp,profile}
-
-                
-            
-
-            } catch (error) {
-                
-            }
-}
