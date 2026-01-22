@@ -1,28 +1,48 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import DBConnection from './others/Database.js';
-import { UserRouter } from './Router/UserRotuer.js';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import DBConnection from "./others/Database.js";
+import { UserRouter } from "./Router/UserRotuer.js";
 
 dotenv.config();
 
-
 const app = express();
-app.use(express.json());
 const PORT = process.env.PORT || 8080;
-app.use(cors({
-  origin: true,
-  credentials: true,
-}));
 
+// ----------------- MIDDLEWARE -----------------
 
-app.use(cookieParser())
-app.use('/user', UserRouter);
+// 1️⃣ CORS: allow local + Netlify frontend, with credentials
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",                        // local dev
+      "https://peppy-chimera-e13188.netlify.app",    // your Netlify frontend
+    ],
+    credentials: true, // allow cookies
+  })
+);
 
+// 2️⃣ Parse JSON body
+app.use(express.json());
 
+// 3️⃣ Parse cookies
+app.use(cookieParser());
+
+// ----------------- ROUTES -----------------
+app.use("/user", UserRouter);
+
+// ----------------- GLOBAL ERROR HANDLER -----------------
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Server Error",
+  });
+});
+
+// ----------------- START SERVER -----------------
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-  DBConnection()
-})
+  console.log(`Server is running on port ${PORT}`);
+  DBConnection(); // connect to database
+});
