@@ -22,7 +22,7 @@ const LoginPage = () => {
                     e.preventDefault();
         
                     try {
-                        const res = await axios.post("http://localhost:8080/user/login", form,{
+                        const res = await axios.post("https://emarket-1-ai90.onrender.com/user/login", form,{
                             headers: {
                                 "Content-Type": "application/json",
                             },

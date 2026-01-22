@@ -9,7 +9,7 @@ const Header = () => {
   // Fetch logged-in user
   const loginUser = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/user/user", {
+      const res = await axios.get("https://emarket-1-ai90.onrender.com/user/user", {
         withCredentials: true,
       });
       setUser(res.data.user);
@@ -23,7 +23,7 @@ const Header = () => {
   const logoutHandler = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/user/logout",
+        "https://emarket-1-ai90.onrender.com/user/logout",
         { withCredentials: true }
       );
       alert(response.data.message);

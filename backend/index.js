@@ -15,10 +15,11 @@ const PORT = process.env.PORT || 8080;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    
+    "https://peppy-chimera-e13188.netlify.app"
   ],
-  credentials: true
+  credentials: true,
 }));
+
 
 app.use(cookieParser())
 app.use('/user', UserRouter);

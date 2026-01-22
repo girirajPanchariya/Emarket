@@ -25,7 +25,7 @@ const Register = () => {
         // }
         setLoading(true);
         try {
-            const response = await axios.post("http://localhost:8080/user/verify", { email: form.email });
+            const response = await axios.post("https://emarket-1-ai90.onrender.com/user/verify", { email: form.email });
             setOtpSent(true);
             alert("OTP sent to your email. It expires in 5 minutes.");
             setLoading(false);
@@ -42,7 +42,7 @@ const Register = () => {
             e.preventDefault();
 
             try {
-                const res = await axios.post("http://localhost:8080/user/register", form);
+                const res = await axios.post("https://emarket-1-ai90.onrender.com/user/register", form);
                 alert(res.data.message);
                 setForm(res.data)
                 navigation('/login')
