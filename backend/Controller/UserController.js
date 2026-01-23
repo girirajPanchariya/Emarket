@@ -94,7 +94,7 @@ export const LoginUser = async(req, res) => {
  res.cookie("token", token, {
   httpOnly: true,       // cannot access from frontend JS
   secure: true,         // must be HTTPS
-  sameSite: "none",     // allow cross-site (Netlify frontend)
+  sameSite: "Strict",     // allow cross-site (Netlify frontend)
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 });
 
@@ -117,7 +117,7 @@ export const logout = async(req, res) => {
     // Clear the JWT cookie
     res.clearCookie("token", {
       httpOnly: true,
-      sameSite: "strict", // must match login cookie
+      sameSite: "Strict", // must match login cookie
       secure: process.env.NODE_ENV === "production",
       path: "/",
     });
@@ -158,4 +158,87 @@ export const GetUserProfile = async(req,res)=>{
         
     }
 }
+
+export const UpdateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const {
+      name,
+      phone,
+      password,
+      otp,
+      image,
+      city,
+      state,
+      country,
+      village,
+      pincode,
+    } = req.body;
+
+    const updateData = {};
+
+    // BASIC
+    if (name) updateData.name = name;
+    if (phone) updateData.phone = phone;
+
+    // PROFILE OBJECT (FORCE REPLACE)
+    if (
+      image || city || state || country || village || pincode
+    ) {
+      updateData.profile = {
+        image: image || "",
+        address: {
+          city: city || "",
+          state: state || "",
+          country: country || "",
+          village: village || "",
+          pincode: pincode || "",
+        },
+      };
+    }
+
+    // PASSWORD
+    if (password) {
+      if (!otp) {
+        return res.status(400).json({ message: "OTP is required" });
+      }
+
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const storedOtp = storage.get(user.email);
+      if (!storedOtp) {
+        return res.status(400).json({ message: "OTP not found" });
+      }
+
+      if (storedOtp.otp !== otp) {
+        return res.status(400).json({ message: "Invalid OTP" });
+      }
+
+      if (storedOtp.expiry < Date.now()) {
+        return res.status(400).json({ message: "OTP expired" });
+      }
+
+      updateData.password = await bcrypt.hash(password, 10);
+      storage.delete(user.email);
+    }
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true } 
+    ).select("-password");
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
 
