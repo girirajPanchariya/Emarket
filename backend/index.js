@@ -18,7 +18,7 @@ app.use(
     origin: [
       "http://localhost:5173",                        // local dev
       "https://peppy-chimera-e13188.netlify.app",
-      "https://stellar-choux-ad9271.netlify.app"    // your Netlify frontend
+      "https://eclectic-tanuki-8d7071.netlify.app"    // your Netlify frontend
     ],
     credentials: true, // allow cookies
   })

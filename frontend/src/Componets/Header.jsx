@@ -6,16 +6,19 @@ const Header = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  // Fetch logged-in user
-  const loginUser = async () => {
+  // Fetch logged-in user from backend
+  const fetchUser = async () => {
     try {
-      const res = await axios.get("https://emarket-1-ai90.onrender.com/user/user", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://emarket-1-ai90.onrender.com/user/user",
+        { withCredentials: true }
+      );
       setUser(res.data.user);
+      localStorage.setItem("userInfo", JSON.stringify(res.data.user)); // persist
     } catch (error) {
       console.log(error);
       setUser(null);
+      localStorage.removeItem("userInfo");
     }
   };
 
@@ -26,10 +29,19 @@ const Header = () => {
         "https://emarket-1-ai90.onrender.com/user/logout",
         { withCredentials: true }
       );
+
       alert(response.data.message);
+
+      // Store last username to show after logout
+      if (response.data.name) {
+        localStorage.setItem("lastUser", response.data.name);
+      }
+
+      // Clear auth info
+      setUser(null);
       localStorage.removeItem("userInfo");
       localStorage.removeItem("token");
-      setUser(null);
+
       navigate("/login");
     } catch (error) {
       console.log(error);
@@ -37,9 +49,19 @@ const Header = () => {
     }
   };
 
+  // On mount: load user from localStorage or fetch
   useEffect(() => {
-    loginUser();
+    const storedUser = localStorage.getItem("userInfo");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      fetchUser();
+    }
   }, []);
+
+  // Display either current user or last user after logout
+  const displayName =
+    user?.name || localStorage.getItem("lastUser") || "User";
 
   return (
     <div className="h-11 w-full bg-amber-500 rounded-b-md p-0 grid grid-cols-3">
@@ -56,7 +78,7 @@ const Header = () => {
       {/* Right / User Menu */}
       <div className="relative group flex items-center justify-end shadow-xl shadow-amber-200 rounded-md px-5">
         <div className="bg-amber-300 px-3 py-1 rounded-2xl cursor-pointer">
-          {user ? user.name : "User"}
+          {displayName}
         </div>
 
         {/* Dropdown */}
@@ -66,7 +88,6 @@ const Header = () => {
               <div className="px-4 py-2 rounded-md hover:bg-amber-200 cursor-pointer">
                 <Link to="/login">Login</Link>
               </div>
-
               <div className="px-4 py-2 rounded-md hover:bg-amber-200 cursor-pointer">
                 <Link to="/register">Register</Link>
               </div>
@@ -79,7 +100,6 @@ const Header = () => {
               >
                 Logout
               </div>
-
               <div className="px-4 py-2 rounded-md hover:bg-amber-200 cursor-pointer">
                 <Link to="/profile">Profile</Link>
               </div>
